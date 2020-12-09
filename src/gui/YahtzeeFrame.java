@@ -1,10 +1,10 @@
 package gui;
 
+import com.sun.codemodel.internal.JOp;
 import entity.*;
 import service.client.LoadAllRecordClientService;
 import service.client.SaveClientService;
 import service.client.UpdateOneRecordClientService;
-import service.db.StoreTotalScoreService;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -83,11 +83,11 @@ public class YahtzeeFrame extends JFrame {
 	private static JTextField lowerSectionGrandTotalTextField;
 	private static JTextField chanceTextField;
 
-	private JCheckBox dice1CheckBox;
-	private JCheckBox dice2CheckBox;
-	private JCheckBox dice3CheckBox;
-	private JCheckBox dice4CheckBox;
-	private JCheckBox dice5CheckBox;
+	private static JCheckBox dice1CheckBox;
+	private static JCheckBox dice2CheckBox;
+	private static JCheckBox dice3CheckBox;
+	private static JCheckBox dice4CheckBox;
+	private static JCheckBox dice5CheckBox;
 
 	private static ImagePanel dice1ImagePanel;
 	private static ImagePanel dice2ImagePanel;
@@ -141,6 +141,7 @@ public class YahtzeeFrame extends JFrame {
 	}
 
 	public static void setLoadData(Game game){
+		Score.finalScoreMap = game.getData();
 		new Score().resetHelperScoreMap();
 		availableTimes = game.getAvailableTimes();
 		totalRound = game.getTotalRound();
@@ -162,6 +163,19 @@ public class YahtzeeFrame extends JFrame {
 		Map<Categories,Integer> map = game.getData();
 		loadPlayerName = playerName;
 		loadTime = game.getTime();
+		if(availableTimes==3){
+			dice1CheckBox.setVisible(false);
+			dice2CheckBox.setVisible(false);
+			dice3CheckBox.setVisible(false);
+			dice4CheckBox.setVisible(false);
+			dice5CheckBox.setVisible(false);
+		}else{
+			dice1CheckBox.setVisible(true);
+			dice2CheckBox.setVisible(true);
+			dice3CheckBox.setVisible(true);
+			dice4CheckBox.setVisible(true);
+			dice5CheckBox.setVisible(true);
+		}
 		playerNameTextField.setText(playerName);
 		acesTextField.setText(map.get(Categories.aces).toString());
 		twosTextField.setText(map.get(Categories.twos).toString());
@@ -194,6 +208,7 @@ public class YahtzeeFrame extends JFrame {
 
 	public static void setLoadButton(Game game){
 		Map<Buttons,Integer> buttonConditions = game.getButtonConditionMap();
+		buttonConditionMap = game.getButtonConditionMap();
 		Map<Categories,Integer> map = new Score().getHelperScoreMap();
 		if(buttonConditions.get(Buttons.acesBtn)==0){
 			acesButton.setEnabled(true);
@@ -295,12 +310,19 @@ public class YahtzeeFrame extends JFrame {
 	}
 
 	public static void setLoadDices(Game game){
-		Dice[] dices = game.getDices();
-		setLoadDice(dice1ImagePanel,dices[0]);
-		setLoadDice(dice2ImagePanel,dices[1]);
-		setLoadDice(dice3ImagePanel,dices[2]);
-		setLoadDice(dice4ImagePanel,dices[3]);
-		setLoadDice(dice5ImagePanel,dices[4]);
+		if(game.getAvailableTimes() == 3){
+			setLoadDice(dice1ImagePanel,Dice.ONE);
+			setLoadDice(dice2ImagePanel,Dice.ONE);
+			setLoadDice(dice3ImagePanel,Dice.ONE);
+			setLoadDice(dice4ImagePanel,Dice.ONE);
+			setLoadDice(dice5ImagePanel,Dice.ONE);
+		}else {
+			Dice[] dices = game.getDices();
+			setLoadDice(dice1ImagePanel,dices[0]);
+			setLoadDice(dice2ImagePanel,dices[1]);
+			setLoadDice(dice3ImagePanel,dices[2]);
+			setLoadDice(dice4ImagePanel,dices[3]);
+			setLoadDice(dice5ImagePanel,dices[4]);}
 	}
 
 	private static void setLoadDice(ImagePanel imagePanel,Dice dice){
@@ -442,6 +464,7 @@ public class YahtzeeFrame extends JFrame {
 					if(click(acesButton,acesTextField,Categories.aces)) acesTextFieldLock = false;
 					buttonConditionMap.put(Buttons.acesBtn,1);
 					setBonusTextField();
+					setFinalScoreMap(acesTextField,acesTextFieldLock);
 				}
 			}
 
@@ -474,6 +497,7 @@ public class YahtzeeFrame extends JFrame {
 					setBonusTextField();
 					Score.finalScoreMap.put(Categories.aces,Integer.valueOf(acesTextField.getText()));
 					buttonConditionMap.put(Buttons.twosBtn,1);
+					setFinalScoreMap(twosTextField,twosTextFieldLock);
 				}
 			}
 
@@ -505,6 +529,7 @@ public class YahtzeeFrame extends JFrame {
 					if(click(threesButton,threesTextFiled,Categories.threes)) threesTextFiledLock = false;
 					setBonusTextField();
 					buttonConditionMap.put(Buttons.threesBtn,1);
+					setFinalScoreMap(threesTextFiled,threesTextFiledLock);
 				}
 			}
 
@@ -536,6 +561,7 @@ public class YahtzeeFrame extends JFrame {
 					if(click(foursButton,foursTextField,Categories.fours)) foursTextFieldLock = false;
 					setBonusTextField();
 					buttonConditionMap.put(Buttons.foursBtn,1);
+					setFinalScoreMap(foursTextField,foursTextFieldLock);
 				}
 			}
 
@@ -567,6 +593,7 @@ public class YahtzeeFrame extends JFrame {
 					if(click(fivesButton,fivesTextField,Categories.fives)) fivesTextFieldLock = false;
 					setBonusTextField();
 					buttonConditionMap.put(Buttons.fivesBtn,1);
+					setFinalScoreMap(fivesTextField,fivesTextFieldLock);
 				}
 			}
 
@@ -598,6 +625,7 @@ public class YahtzeeFrame extends JFrame {
 					if(click(sixesButton,sixesTextField,Categories.sixes)) sixesTextFieldLock=false;
 					setBonusTextField();
 					buttonConditionMap.put(Buttons.sixesBtn,1);
+					setFinalScoreMap(sixesTextField,sixesTextFieldLock);
 				}
 			}
 
@@ -629,6 +657,7 @@ public class YahtzeeFrame extends JFrame {
 					if(click(threeOfAKindButton,threeOfAKindTextField,Categories.threeOfAKind)) threeOfAKindTextFieldLock = false;
 					buttonConditionMap.put(Buttons.threeOfAKindBtn,1);
 					setGrandTotalTextField();
+					setFinalScoreMap(threeOfAKindTextField,threeOfAKindTextFieldLock);
 				}
 			}
 
@@ -660,6 +689,7 @@ public class YahtzeeFrame extends JFrame {
 					if(click(fourOfAKindButton,fourOfAKindTextField,Categories.fourOfAKind)) fourOfAKindTextFieldLock = false;
 					buttonConditionMap.put(Buttons.fourOfAKindBtn,1);
 					setGrandTotalTextField();
+					setFinalScoreMap(fourOfAKindTextField,fourOfAKindTextFieldLock);
 				}
 			}
 
@@ -697,6 +727,7 @@ public class YahtzeeFrame extends JFrame {
 						if(fullHouseTextFieldLock) fullHouseTextField.setText(new Score(currentRoll).calculateScore().get(Categories.fullHouse).toString());
 					}
 				}
+				setFinalScoreMap(fullHouseTextField,fullHouseTextFieldLock);
 			}
 
 			@Override
@@ -733,6 +764,7 @@ public class YahtzeeFrame extends JFrame {
 						if(fullHouseTextFieldLock) fullHouseTextField.setText(new Score(currentRoll).calculateScore().get(Categories.fullHouse).toString());
 					}
 				}
+				setFinalScoreMap(smallStraightTextField,smallStraightTextFieldLock);
 			}
 
 			@Override
@@ -769,6 +801,7 @@ public class YahtzeeFrame extends JFrame {
 						if(fullHouseTextFieldLock) fullHouseTextField.setText(new Score(currentRoll).calculateScore().get(Categories.fullHouse).toString());
 					}
 				}
+				setFinalScoreMap(largeStraightTextField,largeStraightTextFieldLock);
 			}
 
 			@Override
@@ -801,6 +834,7 @@ public class YahtzeeFrame extends JFrame {
 					Score.yahtzeeCount++;
 					setGrandTotalTextField();
 				}
+				setFinalScoreMap(yahtzeeTextField,yahtzeeTextFieldLock);
 			}
 
 			@Override
@@ -832,6 +866,7 @@ public class YahtzeeFrame extends JFrame {
 					buttonConditionMap.put(Buttons.chanceBtn,1);
 					setGrandTotalTextField();
 				}
+				setFinalScoreMap(chanceTextField,chanceTextFieldLock);
 			}
 
 			@Override
@@ -953,7 +988,7 @@ public class YahtzeeFrame extends JFrame {
 					JOptionPane.showMessageDialog(messageFrame, "Special Rule Applied, there is a category in upper section unused, please select it!");
 				}else if(Integer.valueOf(jTextField.getText())==0){
 					JOptionPane.showMessageDialog(messageFrame,"There is a corresponding category still unused");
-				}else{
+				}else {
 					//select upper section category
 					availableTimes =3;
 					subTotal+=Integer.parseInt(jTextField.getText());
@@ -964,13 +999,25 @@ public class YahtzeeFrame extends JFrame {
 					isSpecialRule=false;
 					jButton.setEnabled(false);
 				}
-			}else{ //no corresponding category in the upper section
+			}else if(chanceButton.isEnabled()||threeOfAKindButton.isEnabled()||fourOfAKindButton.isEnabled()||fullHouseButton.isEnabled()||smallStraightButton.isEnabled()||largeStraightButton.isEnabled()){ //no corresponding category in the upper section
 				if(jButton==acesButton||jButton==twosButton||jButton==threesButton||jButton==foursButton||jButton==fivesButton||jButton==sixesButton) {
 					JOptionPane.showMessageDialog(messageFrame, "Special Rule Applied, there is no corresponding category in upper section, please select in lower section!");
+				}else{
+					availableTimes =3;
+					totalOfLowerSection+=Integer.parseInt((jTextField.getText()));
+					totalOfLowerSectionTextField.setText(totalOfLowerSection.toString());
+					Score.finalScoreMap.put(Categories.totalOfLowerSection,totalOfLowerSection);
+					totalRound --;
+					turnLabel.setText("Turn:\t"+String.valueOf(13-totalRound));
+					isSpecialRule=false;
+					jButton.setEnabled(false);
 				}
-				totalOfLowerSection+=Integer.parseInt((jTextField.getText()));
-				totalOfLowerSectionTextField.setText(totalOfLowerSection.toString());
-				Score.finalScoreMap.put(Categories.totalOfLowerSection,totalOfLowerSection);
+			}else{
+				//select o in upper section
+				availableTimes =3;
+				subTotal+=Integer.parseInt(jTextField.getText());
+				scoreSubtotalTextField.setText(subTotal.toString());
+				Score.finalScoreMap.put(Categories.scoreSubtotal,subTotal);
 				totalRound --;
 				turnLabel.setText("Turn:\t"+String.valueOf(13-totalRound));
 				isSpecialRule=false;
@@ -999,8 +1046,6 @@ public class YahtzeeFrame extends JFrame {
 		if(totalRound==0) {
 			rollButton.setEnabled(false);
 			JOptionPane.showMessageDialog(messageFrame,"Game finished, total score is: "+ Score.getGrandTotal()+" Thanks for playing");
-			StoreTotalScoreService storeTotalScoreService = new StoreTotalScoreService(playerNameTextField.getText(),Score.getGrandTotal());
-			storeTotalScoreService.storeTotalScore();
 		}
 	}
 //setValue for textFiled
@@ -1024,6 +1069,12 @@ public class YahtzeeFrame extends JFrame {
 
 		}catch (Exception e){
 			e.printStackTrace();
+		}
+	}
+
+	private void setFinalScoreMap(JTextField jTextField,Boolean lock){
+		if(jTextField==acesTextField&&!acesTextFieldLock){
+			Score.finalScoreMap.put(Categories.aces,Integer.valueOf(jTextField.getText()));
 		}
 	}
 
@@ -1059,16 +1110,17 @@ public class YahtzeeFrame extends JFrame {
 	private void setYahtzeeBonusTextField(){
 		if(new Score().checkYahtzee(currentRoll) && yahtzeeBonusTextFieldLock && yahtzeeTextFieldLock==false && Integer.valueOf(yahtzeeTextField.getText())==50){
 			JOptionPane.showMessageDialog(messageFrame,"You get a yahtzee bonus for 100 points!");
-			yahtzeeBonusTextField.setText("100");
-			Score.finalScoreMap.put(Categories.yahtzeeBonus,100);
+			Integer tmp = Score.finalScoreMap.get(Categories.yahtzeeBonus)+100;
+			Score.finalScoreMap.put(Categories.yahtzeeBonus,tmp);
+			yahtzeeBonusTextField.setText(String.valueOf(Score.finalScoreMap.get(Categories.yahtzeeBonus)));
+			Score.finalScoreMap.put(Categories.yahtzeeBonus,Integer.valueOf(yahtzeeBonusTextField.getText()));
 			totalOfLowerSection+=100;
 			Score.finalScoreMap.put(Categories.totalOfLowerSection,totalOfLowerSection);
-			yahtzeeBonusTextFieldLock = false;
+//			yahtzeeBonusTextFieldLock = false;
 			totalOfLowerSectionTextField.setText(totalOfLowerSection.toString());
-			// TODO change
 			upperSectionGrandTotalTextField.setText(Score.finalScoreMap.get(Categories.upperSectionGrandTotal).toString());
 			lowerSectionGrandTotalTextField.setText(Score.getGrandTotal().toString());
-		}else if(new Score().checkYahtzee(currentRoll) && yahtzeeBonusTextFieldLock && yahtzeeTextFieldLock==false && Integer.valueOf(yahtzeeTextField.getText())==0){
+		}else if(new Score().checkYahtzee(currentRoll) && yahtzeeTextFieldLock==false && Integer.valueOf(yahtzeeTextField.getText())==0){
 			//special rule
 			// the upper section buttons has all been used
 			isSpecialRule=true;
@@ -1077,7 +1129,7 @@ public class YahtzeeFrame extends JFrame {
 		}
 	}
 
-	private void hideKeep(){
+	private static void hideKeep(){
 		if (availableTimes==3){
 			dice1CheckBox.setVisible(false);
 			dice2CheckBox.setVisible(false);
@@ -1114,6 +1166,7 @@ public class YahtzeeFrame extends JFrame {
 		setJMenuBar(jMenuBar);
 		exitMenuItem.addActionListener(e->{System.exit(0);});
 		newGameMenuItem.addActionListener(e->{
+			Score.yahtzeeCount=0;
 			subTotal = 0;
 			availableTimes =3;
 			totalRound = 13;
@@ -1123,6 +1176,20 @@ public class YahtzeeFrame extends JFrame {
 			resetDice();
 			hideKeep();
 			currentRoll = new Dice[]{Dice.ONE,Dice.ONE,Dice.ONE,Dice.ONE,Dice.ONE};
+
+			buttonConditionMap.put(Buttons.acesBtn,0);
+			buttonConditionMap.put(Buttons.twosBtn,0);
+			buttonConditionMap.put(Buttons.threesBtn,0);
+			buttonConditionMap.put(Buttons.foursBtn,0);
+			buttonConditionMap.put(Buttons.fivesBtn,0);
+			buttonConditionMap.put(Buttons.sixesBtn,0);
+			buttonConditionMap.put(Buttons.threeOfAKindBtn,0);
+			buttonConditionMap.put(Buttons.fourOfAKindBtn,0);
+			buttonConditionMap.put(Buttons.fullHouseBtn,0);
+			buttonConditionMap.put(Buttons.smallStraightBtn,0);
+			buttonConditionMap.put(Buttons.largeStraightBtn,0);
+			buttonConditionMap.put(Buttons.yahtzeeBtn,0);
+			buttonConditionMap.put(Buttons.chanceBtn,0);
 
 			newGame(acesTextField,acesButton);
 			acesTextFieldLock = true;
@@ -1146,7 +1213,7 @@ public class YahtzeeFrame extends JFrame {
 			threeOfAKindTextFieldLock = true;
 			newGame(fourOfAKindTextField,fourOfAKindButton);
 			fourOfAKindTextFieldLock = true;
-			newGame(fullHouseTextField,fourOfAKindButton);
+			newGame(fullHouseTextField,fullHouseButton);
 			fullHouseTextFieldLock  = true;
 			newGame(smallStraightTextField,smallStraightButton);
 			smallStraightTextFieldLock = true;
@@ -1169,40 +1236,49 @@ public class YahtzeeFrame extends JFrame {
 			totalOfLowerSection = 0;
 		});
 		saveGameMenuItem.addActionListener(e->{
-			List<Object> tmp = new ArrayList<>();
-			if(!update){
-				tmp.add("Save");
-				tmp.add(playerNameTextField.getText());
-				tmp.add(Score.finalScoreMap);
-				tmp.add(buttonConditionMap);
-				tmp.add(totalRound);
-				tmp.add(availableTimes==3?2:availableTimes);
-				tmp.add(currentRoll);
-				new Thread(new SaveClientService(tmp)).run();
-				loadPlayerName = playerNameTextField.getText();
-				SimpleDateFormat sfd = new SimpleDateFormat();
-				sfd.applyPattern("yyyy-mm-dd HH:mm:ss");
-				loadTime = sfd.format(new Date());
-				update = true;
-			}else{
-				tmp.add("Update");
-				tmp.add(loadPlayerName);
-				tmp.add(Score.finalScoreMap);
-				tmp.add(buttonConditionMap);
-				tmp.add(totalRound);
-				tmp.add(availableTimes==3?2:availableTimes);
-				tmp.add(loadPlayerName);
-				tmp.add(loadTime);
-				tmp.add(currentRoll);
-				new Thread(new UpdateOneRecordClientService(tmp)).run();
+			try{
+				List<Object> tmp = new ArrayList<>();
+				if(!update){
+					tmp.add("Save");
+					tmp.add(playerNameTextField.getText());
+					tmp.add(Score.finalScoreMap);
+					tmp.add(buttonConditionMap);
+					tmp.add(totalRound);
+//					tmp.add(availableTimes==3?2:availableTimes);
+					tmp.add(availableTimes);
+					tmp.add(currentRoll);
+					new Thread(new SaveClientService(tmp)).run();
+					loadPlayerName = playerNameTextField.getText();
+					SimpleDateFormat sfd = new SimpleDateFormat();
+					sfd.applyPattern("yyyy-mm-dd HH:mm:ss");
+					loadTime = sfd.format(new Date());
+					update = true;
+				}else{
+					tmp.add("Update");
+					tmp.add(loadPlayerName);
+					tmp.add(Score.finalScoreMap);
+					tmp.add(buttonConditionMap);
+					tmp.add(totalRound);
+//					tmp.add(availableTimes==3?2:availableTimes);
+					tmp.add(availableTimes);
+					tmp.add(loadPlayerName);
+					tmp.add(loadTime);
+					tmp.add(currentRoll);
+					new Thread(new UpdateOneRecordClientService(tmp)).run();
+				}
+			}catch (Exception exception){
+				JOptionPane.showMessageDialog(messageFrame,"please run the server first");
 			}
 		});
 		loadGameMenuItem.addActionListener(e->{
-			// TODO load game
-			List<Object> tmp = new ArrayList<>();
-			tmp.add("LoadAll");
-			new Thread(new LoadAllRecordClientService(tmp)).run();
-			new LoadGameFrame();
+			try{
+				List<Object> tmp = new ArrayList<>();
+				tmp.add("LoadAll");
+				new Thread(new LoadAllRecordClientService(tmp)).run();
+				new LoadGameFrame();
+			}catch (Exception exception){
+				JOptionPane.showMessageDialog(messageFrame,"please run the server first");
+			}
 		});
 	}
 
