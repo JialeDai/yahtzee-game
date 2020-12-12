@@ -141,6 +141,11 @@ public class YahtzeeFrame extends JFrame {
 	}
 
 	public static void setLoadData(Game game){
+		dice1CheckBox.setSelected(false);
+		dice2CheckBox.setSelected(false);
+		dice3CheckBox.setSelected(false);
+		dice4CheckBox.setSelected(false);
+		dice5CheckBox.setSelected(false);
 		Score.finalScoreMap = game.getData();
 		new Score().resetHelperScoreMap();
 		availableTimes = game.getAvailableTimes();
@@ -1166,6 +1171,11 @@ public class YahtzeeFrame extends JFrame {
 		setJMenuBar(jMenuBar);
 		exitMenuItem.addActionListener(e->{System.exit(0);});
 		newGameMenuItem.addActionListener(e->{
+			dice1CheckBox.setSelected(false);
+			dice2CheckBox.setSelected(false);
+			dice3CheckBox.setSelected(false);
+			dice4CheckBox.setSelected(false);
+			dice5CheckBox.setSelected(false);
 			Score.yahtzeeCount=0;
 			subTotal = 0;
 			availableTimes =3;
